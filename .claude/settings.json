@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node -e \"const m=require\\('lucide-react'\\); const want=['Instagram','Facebook','Linkedin','Briefcase','Code2','CodeXml','Bot','Plane','BookOpen','Sparkles','CalendarDays','MapPin','Globe','Globe2','Earth','Users','ArrowRight','ArrowDown','RotateCcw','Home','House','X','Check','Maximize','Minimize','Sun','Moon','MonitorSmartphone','Timer','Trophy','Trash2','Gamepad2','ChevronLeft','ChevronRight','Lock','LockOpen','Unlock','ExternalLink','Heart','Zap','Palette','PartyPopper','ClipboardList','Handshake','Megaphone','Cpu','Rocket','Mouse','Hand','Backpack','Eye','EyeOff','Hourglass','Play','Star','Coffee','BarChart3','ChartBar','ChartNoAxesColumn','Monitor','Undo2','MousePointerClick','Pointer','LogOut','Settings','ArrowUpRight']; console.log\\(want.map\\(k=>k+':'+\\(k in m\\)\\).join\\(' '\\)\\)\")",
+      "PowerShell(npx tsc --noEmit 2>&1)"
+    ]
+  }
+}

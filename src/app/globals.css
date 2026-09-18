@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fundal și suprafețe */
+  --color-ink: #0c0618;
+  --color-ink-2: #140a26;
+  --color-ink-3: #1d1035;
+
+  /* Mov BEST */
+  --color-best-50: #f6f1ff;
+  --color-best-100: #ece2ff;
+  --color-best-200: #d9c7ff;
+  --color-best-300: #bf9dff;
+  --color-best-400: #a26cff;
+  --color-best-500: #8b3dff;
+  --color-best-600: #7c22f5;
+  --color-best-700: #6a16d6;
+  --color-best-800: #5815ad;
+  --color-best-900: #48138a;
+  --color-best-950: #2c065e;
+
+  /* Culorile arhetipurilor */
+  --color-org: #fbbf24;
+  --color-travel: #22d3ee;
+  --color-party: #e879f9;
+  --color-design: #a3e635;
+
+  --animate-blob: blob 22s ease-in-out infinite;
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-gradient: gradient-x 6s ease infinite;
+  --animate-spin-slow: spin 18s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-scan: scan 2.2s linear infinite;
+
+  @keyframes blob {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(8vw, -6vh) scale(1.15);
+    }
+    66% {
+      transform: translate(-6vw, 8vh) scale(0.9);
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes gradient-x {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+
+  @keyframes scan {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(400%);
+    }
+  }
+}
+
+@theme inline {
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+@utility glass {
+  background-color: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+@utility text-gradient {
+  background-image: linear-gradient(90deg, #d9c7ff, #a26cff, #e879f9, #7c22f5, #d9c7ff);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: var(--animate-gradient);
+}
+
+@utility grid-bg {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+@utility noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    /* Fără pull-to-refresh accidental pe tabletele de la stand */
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: #f3edff;
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-best-500);
+    color: white;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-best-300);
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
