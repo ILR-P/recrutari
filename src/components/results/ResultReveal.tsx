@@ -45,8 +45,8 @@ export function ResultReveal({ archetypeId, scores, bestanNo, issuedAt, onRestar
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 -z-10 size-[44rem] -translate-x-1/2 rounded-full opacity-30 blur-[120px]"
-        style={{ background: archetype.colors[0] }}
+        className="pointer-events-none absolute -top-72 left-1/2 -z-10 size-256 -translate-x-1/2 rounded-full opacity-30"
+        style={{ background: `radial-gradient(circle, ${archetype.colors[0]} 0%, transparent 60%)` }}
       />
 
       <div className="text-center">

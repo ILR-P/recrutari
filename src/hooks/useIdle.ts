@@ -4,34 +4,46 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const ACTIVITY_EVENTS = ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "scroll"] as const;
 
-/** Devine `true` după `timeoutMs` fără nicio interacțiune. */
+/**
+ * Devine `true` după `timeoutMs` fără nicio interacțiune.
+ * Evenimentele doar notează ora ultimei activități (fără timere noi la fiecare mișcare
+ * de mouse), iar un interval de 1 s verifică dacă a trecut timpul.
+ */
 export function useIdle(timeoutMs: number, enabled = true) {
   const [idle, setIdle] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  const arm = useCallback(() => {
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setIdle(true), timeoutMs);
-  }, [timeoutMs]);
+  const lastActivity = useRef(0);
+  const isIdle = useRef(false);
 
   useEffect(() => {
     if (!enabled) return;
+    lastActivity.current = Date.now();
+
     const onActivity = () => {
-      setIdle(false);
-      arm();
+      lastActivity.current = Date.now();
+      if (isIdle.current) {
+        isIdle.current = false;
+        setIdle(false);
+      }
     };
-    arm();
+    const check = setInterval(() => {
+      if (!isIdle.current && Date.now() - lastActivity.current >= timeoutMs) {
+        isIdle.current = true;
+        setIdle(true);
+      }
+    }, 1000);
+
     ACTIVITY_EVENTS.forEach((name) => window.addEventListener(name, onActivity, { passive: true }));
     return () => {
-      clearTimeout(timer.current);
+      clearInterval(check);
       ACTIVITY_EVENTS.forEach((name) => window.removeEventListener(name, onActivity));
     };
-  }, [enabled, arm]);
+  }, [enabled, timeoutMs]);
 
   const dismiss = useCallback(() => {
+    lastActivity.current = Date.now();
+    isIdle.current = false;
     setIdle(false);
-    arm();
-  }, [arm]);
+  }, []);
 
   return { idle: enabled && idle, dismiss };
 }

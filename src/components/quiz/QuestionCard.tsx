@@ -41,7 +41,13 @@ export function QuestionCard({ step, index, onAnswer }: Props) {
   const isEmoji = step.variant === "emoji";
 
   return (
-    <motion.div className="w-full max-w-4xl" variants={entrance} initial="hidden" animate="show" exit="exit">
+    <motion.div
+      className="w-full max-w-4xl will-change-transform"
+      variants={entrance}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+    >
       <h2 className="text-center font-display text-3xl leading-tight font-bold text-balance sm:text-5xl">
         {step.prompt}
       </h2>
@@ -74,12 +80,12 @@ export function QuestionCard({ step, index, onAnswer }: Props) {
                 isSelected
                   ? { ...pulseSelect, y: -8, boxShadow: `0 0 50px -10px ${color}` }
                   : dimmed
-                    ? { opacity: 0.25, scale: 0.94, filter: "grayscale(1)" }
+                    ? { opacity: 0.25, scale: 0.94 }
                     : undefined
               }
               style={isSelected ? { borderColor: color } : undefined}
               className={cn(
-                "group glass relative flex cursor-pointer items-center rounded-3xl border-2 border-white/10 text-left transition-colors hover:border-best-300/60 hover:bg-white/10 disabled:cursor-default",
+                "group glass relative flex cursor-pointer items-center rounded-3xl border-2 border-white/10 text-left transition-colors will-change-transform hover:border-best-300/60 hover:bg-white/10 disabled:cursor-default",
                 isEmoji ? "flex-col justify-center gap-2 px-3 py-6 text-center" : "min-h-22 gap-4 p-4 sm:p-5",
               )}
             >

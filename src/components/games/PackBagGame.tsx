@@ -68,13 +68,16 @@ export function PackBagGame({ step, onFinish }: { step: PackGameStep; onFinish: 
     return (
       <motion.div
         key={item.id}
-        className="glass relative z-10 flex h-24 cursor-grab touch-none flex-col items-center justify-center gap-1 rounded-2xl select-none active:cursor-grabbing sm:h-28"
+        className="glass relative z-10 flex h-24 cursor-grab touch-none flex-col items-center justify-center gap-1 rounded-2xl select-none will-change-transform active:cursor-grabbing sm:h-28"
         drag
         dragSnapToOrigin
         dragElastic={1}
         whileDrag={{ scale: 1.2, rotate: 8, zIndex: 50 }}
         whileHover={{ y: -5 }}
-        onDrag={(_, info) => setHot(overBag(info))}
+        onDrag={(_, info) => {
+          const over = overBag(info);
+          if (over !== hot) setHot(over);
+        }}
         onDragEnd={(_, info) => {
           setHot(false);
           if (overBag(info)) pack(item.id);
@@ -108,13 +111,7 @@ export function PackBagGame({ step, onFinish }: { step: PackGameStep; onFinish: 
             animate={{ scale: hot ? 1.06 : 1 }}
             transition={springs.snappy}
           >
-            <motion.span
-              className="text-7xl"
-              animate={hot ? { rotate: [0, -8, 8, 0] } : { rotate: 0 }}
-              transition={{ duration: 0.5, repeat: hot ? Infinity : 0 }}
-            >
-              🎒
-            </motion.span>
+            <span className={cn("text-7xl will-change-transform", hot && "animate-wiggle")}>🎒</span>
             <div className="mt-3 flex min-h-14 flex-wrap justify-center gap-2 px-4">
               {packed.map((id) => {
                 const item = step.items.find((i) => i.id === id)!;

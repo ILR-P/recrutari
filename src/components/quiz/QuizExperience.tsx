@@ -2,7 +2,6 @@
 
 import { AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { CatchGame } from "@/components/games/CatchGame";
 import { GameShell } from "@/components/games/GameShell";
 import { PackBagGame } from "@/components/games/PackBagGame";
@@ -24,9 +23,11 @@ export function QuizExperience() {
   const { state, step } = quiz;
 
   // Fiecare pas nou începe de sus (pe telefoane, unii pași sunt mai înalți decât ecranul).
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [state.phase, state.stepIndex]);
+  // Sărim sus instant, între ieșirea pasului vechi și intrarea celui nou, ca scroll-ul
+  // să nu concureze cu animațiile.
+  const scrollToTop = () => {
+    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: "instant" });
+  };
 
   const handleCalculated = () => {
     const id = getResult(state.scores, state.history);
@@ -45,7 +46,7 @@ export function QuizExperience() {
       <AnimatePresence>{state.phase === "playing" && <QuizProgress current={state.stepIndex} />}</AnimatePresence>
 
       <div className="flex w-full flex-1 items-center justify-center py-8">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" onExitComplete={scrollToTop}>
           {state.phase === "intro" && <QuizIntro key="intro" onStart={quiz.start} />}
           {state.phase === "playing" && (
             <StepView key={step.id} step={step} index={state.stepIndex} onAnswer={quiz.answer} />

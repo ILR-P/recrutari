@@ -30,7 +30,7 @@ export function MemoryUnlock() {
       <div className="mx-auto max-w-4xl">
         <AnimatePresence mode="wait">
           {wonIn === null ? (
-            <motion.div key="game" exit={{ opacity: 0, scale: 0.95, filter: "blur(8px)" }}>
+            <motion.div key="game" exit={{ opacity: 0, scale: 0.95 }}>
               <MemoryGame onWin={handleWin} />
             </motion.div>
           ) : (

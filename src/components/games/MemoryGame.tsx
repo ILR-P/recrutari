@@ -93,7 +93,7 @@ export function MemoryGame({ onWin }: { onWin: (moves: number) => void }) {
               layout
               onClick={() => flip(i)}
               aria-label={faceUp ? `${card.big}: ${card.small}` : "Carte ascunsă"}
-              className="relative h-32 cursor-pointer rounded-2xl transform-3d sm:h-44"
+              className="relative h-32 cursor-pointer rounded-2xl transform-3d will-change-transform sm:h-44"
               animate={{
                 rotateY: faceUp ? 180 : 0,
                 x: wrong.includes(i) ? [0, -10, 10, -6, 6, 0] : 0,
@@ -134,22 +134,23 @@ export function MemoryGame({ onWin }: { onWin: (moves: number) => void }) {
       <AnimatePresence>
         {!started && (
           <motion.div
-            className="absolute inset-0 top-9 grid place-items-center rounded-3xl bg-ink/55 backdrop-blur-[3px]"
+            className="absolute inset-0 top-9 grid place-items-center rounded-3xl bg-ink/65"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
           >
-            <motion.button
-              type="button"
-              onClick={start}
-              className="flex h-16 cursor-pointer items-center gap-3 rounded-full bg-white px-8 font-display text-lg font-bold text-ink shadow-[0_0_60px_-10px_rgba(162,108,255,0.9)]"
-              whileHover={{ scale: 1.06 }}
-              whileTap={{ scale: 0.94 }}
-              animate={{ y: [0, -6, 0] }}
-              transition={{ y: { duration: 2, repeat: Infinity, ease: "easeInOut" } }}
-            >
-              <Play className="size-5 fill-current" /> Începe jocul
-            </motion.button>
+            {/* Plutirea e CSS (GPU); hover/tap rămân pe butonul din interior */}
+            <span className="animate-bob will-change-transform">
+              <motion.button
+                type="button"
+                onClick={start}
+                className="flex h-16 cursor-pointer items-center gap-3 rounded-full bg-white px-8 font-display text-lg font-bold text-ink shadow-[0_0_60px_-10px_rgba(162,108,255,0.9)]"
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.94 }}
+              >
+                <Play className="size-5 fill-current" /> Începe jocul
+              </motion.button>
+            </span>
           </motion.div>
         )}
       </AnimatePresence>

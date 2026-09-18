@@ -26,11 +26,12 @@ export function ScoreBreakdown({ rows, delay = 0 }: { rows: BreakdownRow[]; dela
                 <AnimatedCounter value={row.percent} suffix="%" duration={1.4} className="font-mono text-white/80" />
               </div>
               <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white/10">
+                {/* clip-path în loc de width: nu declanșează layout la fiecare cadru */}
                 <motion.div
-                  className="h-full rounded-full"
+                  className="h-full w-full"
                   style={{ background: archetypeGradient(row.id, 90) }}
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${row.percent}%` }}
+                  initial={{ clipPath: "inset(0% 100% 0% 0% round 999px)" }}
+                  whileInView={{ clipPath: `inset(0% ${100 - row.percent}% 0% 0% round 999px)` }}
                   viewport={{ once: true }}
                   transition={{ duration: 1.2, ease: easeOut, delay: delay + i * 0.12 }}
                 />

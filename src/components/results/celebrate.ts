@@ -18,11 +18,16 @@ export function celebrate(colors: string[], emoji?: string, durationMs = 2500): 
     }
   }
 
+  // Salvele laterale trag la fiecare al doilea cadru: aceeași densitate vizuală,
+  // jumătate din mesajele către worker-ul care desenează confetti-ul.
   const end = performance.now() + durationMs;
   let frame = 0;
+  let tick = 0;
   const cannons = () => {
-    confetti({ ...base, particleCount: 4, angle: 60, spread: 60, startVelocity: 60, origin: { x: 0, y: 0.75 } });
-    confetti({ ...base, particleCount: 4, angle: 120, spread: 60, startVelocity: 60, origin: { x: 1, y: 0.75 } });
+    if (tick++ % 2 === 0) {
+      confetti({ ...base, particleCount: 6, angle: 60, spread: 60, startVelocity: 60, origin: { x: 0, y: 0.75 } });
+      confetti({ ...base, particleCount: 6, angle: 120, spread: 60, startVelocity: 60, origin: { x: 1, y: 0.75 } });
+    }
     if (performance.now() < end) frame = requestAnimationFrame(cannons);
   };
   frame = requestAnimationFrame(cannons);

@@ -61,8 +61,8 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           <span className="absolute inset-0 flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-ink-2/85 p-6 backface-hidden">
             <span
               aria-hidden
-              className="absolute -top-16 -right-16 size-48 rounded-full blur-3xl"
-              style={{ background: `${project.color}40` }}
+              className="absolute -top-28 -right-28 size-72 rounded-full"
+              style={{ background: `radial-gradient(circle, ${project.color}50 0%, transparent 62%)` }}
             />
             <span className="relative flex items-start justify-between">
               <span

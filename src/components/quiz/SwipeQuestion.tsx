@@ -48,7 +48,7 @@ export function SwipeQuestion({ step, index, onAnswer }: { step: SwipeStep; inde
 
   return (
     <motion.div
-      className="flex w-full max-w-xl flex-col items-center"
+      className="flex w-full max-w-xl flex-col items-center will-change-transform"
       variants={questionEntrances[index % questionEntrances.length]}
       initial="hidden"
       animate="show"
@@ -118,7 +118,7 @@ function SwipeCard({
 
   return (
     <motion.div
-      className="absolute inset-0 flex touch-none flex-col items-center justify-center gap-5 rounded-[2rem] border border-white/15 bg-linear-to-br from-ink-3 to-ink-2 p-8 text-center shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)] select-none"
+      className="absolute inset-0 flex touch-none flex-col items-center justify-center gap-5 rounded-4xl border border-white/15 bg-linear-to-br from-ink-3 to-ink-2 p-8 text-center shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)] select-none will-change-transform"
       style={{ x, rotate, zIndex: 10 - depth, cursor: isTop ? "grab" : "default" }}
       drag={isTop ? "x" : false}
       dragSnapToOrigin
@@ -132,13 +132,13 @@ function SwipeCard({
       exit="exit"
     >
       <motion.span
-        className="absolute top-6 left-6 -rotate-12 rounded-xl border-4 border-emerald-400 px-3 py-1 font-display text-2xl font-black text-emerald-400"
+        className="absolute top-6 left-6 -rotate-12 rounded-xl border-4 border-emerald-400 px-3 py-1 font-display text-2xl font-black text-emerald-400 will-change-[opacity]"
         style={{ opacity: yesOpacity }}
       >
         DA ✓
       </motion.span>
       <motion.span
-        className="absolute top-6 right-6 rotate-12 rounded-xl border-4 border-rose-400 px-3 py-1 font-display text-2xl font-black text-rose-400"
+        className="absolute top-6 right-6 rotate-12 rounded-xl border-4 border-rose-400 px-3 py-1 font-display text-2xl font-black text-rose-400 will-change-[opacity]"
         style={{ opacity: noOpacity }}
       >
         NU ✗

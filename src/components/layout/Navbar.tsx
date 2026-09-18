@@ -28,7 +28,8 @@ export function Navbar() {
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (v) => {
     const prev = scrollY.getPrevious() ?? 0;
-    setHidden(v > prev && v > 160);
+    const next = v > prev && v > 160;
+    if (next !== hidden) setHidden(next);
   });
 
   // Easter egg pentru voluntari: triplu-tap pe logo deschide panoul /stand.
@@ -57,7 +58,7 @@ export function Navbar() {
       animate={{ y: hidden ? -110 : 0 }}
       transition={springs.snappy}
     >
-      <nav className="flex w-full max-w-5xl items-center justify-between gap-2 rounded-full border border-white/10 bg-ink/75 py-2 pr-2 pl-4 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      <nav className="flex w-full max-w-5xl items-center justify-between gap-2 rounded-full border border-white/10 bg-ink/85 py-2 pr-2 pl-4 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.6)] backdrop-blur-md">
         {inQuiz ? (
           <button type="button" onClick={onLogoTap} className="cursor-default" aria-label="BEST Cluj-Napoca">
             {logo}

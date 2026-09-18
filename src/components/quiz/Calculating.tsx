@@ -35,14 +35,18 @@ export function Calculating({ onDone }: { onDone: () => void }) {
       className="flex w-full max-w-lg flex-col items-center gap-8"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.3, filter: "blur(14px)", transition: { duration: 0.4 } }}
+      exit={{ opacity: 0, scale: 1.25, transition: { duration: 0.4 } }}
     >
-      <Morisca
-        palette="archetypes"
-        className="size-28 drop-shadow-[0_0_40px_rgba(162,108,255,0.7)] sm:size-36"
-        animate={{ rotate: 2160 }}
-        transition={{ duration: DURATION_MS / 1000, ease: [0.55, 0, 0.85, 0.35] }}
-      />
+      <div className="relative grid place-items-center">
+        {/* Strălucirea e un gradient static în spate; o umbră pe morișca ce se rotește s-ar redesena la fiecare cadru */}
+        <div className="absolute size-56 rounded-full bg-[radial-gradient(circle,rgba(162,108,255,0.55)_0%,transparent_65%)] sm:size-72" />
+        <Morisca
+          palette="archetypes"
+          className="relative size-28 will-change-transform sm:size-36"
+          animate={{ rotate: 2160 }}
+          transition={{ duration: DURATION_MS / 1000, ease: [0.55, 0, 0.85, 0.35] }}
+        />
+      </div>
 
       <div className="glass relative w-full overflow-hidden rounded-2xl">
         <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">

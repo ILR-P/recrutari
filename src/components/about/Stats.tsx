@@ -39,7 +39,9 @@ export function Stats() {
                 className="mt-4 block font-display text-4xl font-bold tracking-tight sm:text-5xl"
               />
               <p className="mt-1 text-sm text-white/60">{stat.label}</p>
-              <div className="absolute -right-10 -bottom-10 size-32 rounded-full bg-best-500/20 blur-2xl transition-colors duration-500 group-hover:bg-fuchsia-400/40" />
+              {/* Gradient radial (nu blur) + crossfade din opacitate la hover */}
+              <div className="absolute -right-16 -bottom-16 size-48 rounded-full bg-[radial-gradient(circle,rgba(139,61,255,0.35)_0%,transparent_65%)]" />
+              <div className="absolute -right-16 -bottom-16 size-48 rounded-full bg-[radial-gradient(circle,rgba(232,121,249,0.55)_0%,transparent_65%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             </motion.div>
           );
         })}

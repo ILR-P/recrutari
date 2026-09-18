@@ -9,8 +9,7 @@ import { cn } from "@/lib/cn";
 const MotionLink = motion.create(Link);
 
 const VARIANTS = {
-  primary:
-    "bg-linear-to-r from-best-500 via-fuchsia-500 to-best-600 bg-[length:200%_100%] animate-gradient text-white shadow-[0_0_48px_-10px_rgba(139,61,255,0.9)]",
+  primary: "bg-best-500 text-white shadow-[0_0_48px_-10px_rgba(139,61,255,0.9)]",
   ghost: "glass text-white hover:bg-white/10",
   light: "bg-white text-ink hover:bg-best-50",
 };
@@ -73,6 +72,13 @@ export function Button({
 
   const content = (
     <>
+      {variant === "primary" && (
+        // Gradientul alunecă din transform (GPU), nu din background-position (redesenare la fiecare cadru).
+        <span
+          aria-hidden
+          className="absolute inset-y-0 left-0 w-[200%] animate-gradient-slide bg-linear-to-r from-best-500 via-fuchsia-500 to-best-600 will-change-transform"
+        />
+      )}
       <span className="relative z-10 flex items-center gap-2">{children}</span>
       {ripples.map((r) => (
         <motion.span
@@ -90,7 +96,7 @@ export function Button({
 
   const shared = {
     className: cn(
-      "relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full font-display font-semibold select-none",
+      "relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full font-display font-semibold select-none will-change-transform",
       "disabled:pointer-events-none disabled:opacity-40",
       VARIANTS[variant],
       SIZES[size],

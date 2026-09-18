@@ -1,16 +1,18 @@
 "use client";
 
-import { motion, useAnimate, useAnimationFrame, useMotionValue, useTransform } from "motion/react";
+import { useAnimate } from "motion/react";
 import { Timer, Trophy } from "lucide-react";
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useEffectEvent, useRef, useState, type PointerEvent } from "react";
 import type { ArchetypeId } from "@/data/archetypes";
 import type { CatchGameStep, Scores } from "@/data/quiz";
+import { useSafeTimeout } from "@/hooks/useSafeTimeout";
 import { cn } from "@/lib/cn";
 import { getStandData, recordCatchScore, useStandData } from "@/lib/stand-stats";
 import type { GameResult } from "./GameShell";
 
 type Falling = { id: number; emoji: string; archetype: ArchetypeId | null; x: number; y: number; speed: number; spin: number; rot: number };
-type Pop = { id: number; x: number; y: number; text: string; good: boolean; born: number };
+type Sprite = { id: number; emoji: string; hazard: boolean };
+type Pop = { id: number; x: number; y: number; text: string; good: boolean };
 
 const ITEM_SIZE = 44;
 const BASKET_W = 104;
@@ -20,51 +22,37 @@ const HAZARD_PENALTY = 2;
 
 const pick = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)];
 
-/** Mini-joc „Prinde-le pe toate”: muți coșul cu degetul, cu mouse-ul sau cu săgețile. */
+/**
+ * Mini-joc „Prinde-le pe toate”: muți coșul cu degetul, cu mouse-ul sau cu săgețile.
+ *
+ * Performanță: React randează doar când apare, e prins sau iese un obiect (de câteva ori
+ * pe secundă). Pozițiile se scriu direct în DOM la fiecare cadru, ca translate3d (GPU).
+ */
 export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (r: GameResult) => void }) {
   const [arena, animateArena] = useAnimate<HTMLDivElement>();
-  const [items, setItems] = useState<Falling[]>([]);
+  const [sprites, setSprites] = useState<Sprite[]>([]);
   const [pops, setPops] = useState<Pop[]>([]);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(step.durationSec);
   const record = useStandData().catchRecord;
+  const later = useSafeTimeout();
 
-  // Starea jocului stă în ref-uri ca bucla de animație să nu depindă de re-render-uri.
+  const nodes = useRef(new Map<number, HTMLSpanElement>());
+  const basket = useRef<HTMLDivElement>(null);
+  const keys = useRef({ left: false, right: false });
   const game = useRef({
     running: true,
     elapsed: 0,
     lastSpawn: 0,
     nextId: 0,
     score: 0,
+    shownSeconds: step.durationSec,
     hazardsHit: 0,
     target: 0.5,
     pos: 0.5,
     catches: {} as Partial<Record<ArchetypeId, number>>,
     falling: [] as Falling[],
-    pops: [] as Pop[],
   });
-  const keys = useRef({ left: false, right: false });
-
-  const basketX = useMotionValue(0.5);
-  const basketTilt = useMotionValue(0);
-  const basketLeft = useTransform(basketX, (v) => `${v * 100}%`);
-
-  useEffect(() => {
-    const set = (e: KeyboardEvent, down: boolean) => {
-      if (e.key === "ArrowLeft" || e.key === "a") keys.current.left = down;
-      else if (e.key === "ArrowRight" || e.key === "d") keys.current.right = down;
-      else return;
-      e.preventDefault();
-    };
-    const onDown = (e: KeyboardEvent) => set(e, true);
-    const onUp = (e: KeyboardEvent) => set(e, false);
-    window.addEventListener("keydown", onDown);
-    window.addEventListener("keyup", onUp);
-    return () => {
-      window.removeEventListener("keydown", onDown);
-      window.removeEventListener("keyup", onUp);
-    };
-  }, []);
 
   const end = () => {
     const g = game.current;
@@ -83,7 +71,12 @@ export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (
     });
   };
 
-  useAnimationFrame((_, deltaMs) => {
+  const addPop = (pop: Pop) => {
+    setPops((list) => [...list, pop]);
+    later(() => setPops((list) => list.filter((p) => p.id !== pop.id)), 800);
+  };
+
+  const tick = useEffectEvent((deltaMs: number) => {
     const g = game.current;
     const el = arena.current;
     if (!g.running || !el) return;
@@ -93,14 +86,17 @@ export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (
     const height = el.clientHeight;
     g.elapsed += dt;
     const progress = Math.min(1, g.elapsed / step.durationSec);
+    let listChanged = false;
 
     // Coșul: tastatura mută ținta, iar coșul o urmează lin.
     if (keys.current.left) g.target = Math.max(0.06, g.target - 1.3 * dt);
     if (keys.current.right) g.target = Math.min(0.94, g.target + 1.3 * dt);
     const previous = g.pos;
     g.pos += (g.target - g.pos) * Math.min(1, dt * 16);
-    basketX.set(g.pos);
-    basketTilt.set(Math.max(-20, Math.min(20, ((g.pos - previous) / dt) * 14)));
+    const tilt = Math.max(-20, Math.min(20, ((g.pos - previous) / Math.max(dt, 0.001)) * 14));
+    if (basket.current) {
+      basket.current.style.transform = `translate3d(${g.pos * width - BASKET_W / 2}px, 0, 0) rotate(${tilt}deg)`;
+    }
 
     // Obiectele apar tot mai des și cad tot mai repede.
     if (g.elapsed - g.lastSpawn > 0.62 - progress * 0.3) {
@@ -117,6 +113,7 @@ export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (
         spin: (Math.random() - 0.5) * 220,
         rot: 0,
       });
+      listChanged = true;
     }
 
     const basketTop = height - BASKET_H - 16;
@@ -139,28 +136,71 @@ export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (
           g.hazardsHit += 1;
           animateArena(el, { x: [0, -12, 12, -7, 7, 0] }, { duration: 0.35 });
         }
-        g.pops.push({
+        addPop({
           id: item.id,
-          x: item.x,
+          x: item.x * width,
           y: basketTop - 24,
           text: good ? "+1" : `-${HAZARD_PENALTY} Restanță!`,
           good,
-          born: g.elapsed,
         });
         setScore(g.score);
+        listChanged = true;
         continue;
       }
-      if (item.y < height) stillFalling.push(item);
+      if (item.y >= height) {
+        listChanged = true;
+        continue;
+      }
+      stillFalling.push(item);
+      const node = nodes.current.get(item.id);
+      if (node) {
+        node.style.transform = `translate3d(${item.x * width - ITEM_SIZE / 2}px, ${item.y}px, 0) rotate(${item.rot}deg)`;
+      }
+    }
+    g.falling = stillFalling;
+
+    if (listChanged) {
+      setSprites(stillFalling.map((item) => ({ id: item.id, emoji: item.emoji, hazard: item.archetype === null })));
     }
 
-    g.falling = stillFalling;
-    g.pops = g.pops.filter((p) => g.elapsed - p.born < 0.75);
-    setItems(stillFalling.map((item) => ({ ...item })));
-    setPops([...g.pops]);
-    setTimeLeft(Math.max(0, Math.ceil(step.durationSec - g.elapsed)));
+    const seconds = Math.max(0, Math.ceil(step.durationSec - g.elapsed));
+    if (seconds !== g.shownSeconds) {
+      g.shownSeconds = seconds;
+      setTimeLeft(seconds);
+    }
 
     if (g.elapsed >= step.durationSec) end();
   });
+
+  // Bucla de animație: un singur requestAnimationFrame, pornit o dată.
+  useEffect(() => {
+    let raf = 0;
+    let last = performance.now();
+    const loop = (now: number) => {
+      tick(now - last);
+      last = now;
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
+    const set = (e: KeyboardEvent, down: boolean) => {
+      if (e.key === "ArrowLeft" || e.key === "a") keys.current.left = down;
+      else if (e.key === "ArrowRight" || e.key === "d") keys.current.right = down;
+      else return;
+      e.preventDefault();
+    };
+    const onDown = (e: KeyboardEvent) => set(e, true);
+    const onUp = (e: KeyboardEvent) => set(e, false);
+    window.addEventListener("keydown", onDown);
+    window.addEventListener("keyup", onUp);
+    return () => {
+      window.removeEventListener("keydown", onDown);
+      window.removeEventListener("keyup", onUp);
+    };
+  }, []);
 
   const steer = (e: PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -179,16 +219,14 @@ export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (
           <span className="hidden items-center gap-1.5 text-sm text-white/50 sm:flex">
             <Trophy className="size-4" /> record: {record}
           </span>
-          <motion.span
+          <span
             className={cn(
               "flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xl font-bold tabular-nums",
-              urgent ? "bg-rose-500/25 text-rose-300" : "bg-white/10",
+              urgent ? "animate-pulse-scale bg-rose-500/25 text-rose-300" : "bg-white/10",
             )}
-            animate={urgent ? { scale: [1, 1.12, 1] } : { scale: 1 }}
-            transition={{ duration: 0.5, repeat: urgent ? Infinity : 0 }}
           >
             <Timer className="size-5" /> {timeLeft}s
-          </motion.span>
+          </span>
         </div>
       </div>
 
@@ -201,51 +239,46 @@ export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (
         <div className="absolute inset-0 grid-bg opacity-50" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-best-600/30 to-transparent" />
 
-        <motion.p
-          className="pointer-events-none absolute inset-x-0 top-1/3 text-center font-mono text-sm text-white/60"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 0 }}
-          transition={{ delay: 2, duration: 0.6 }}
-        >
+        <p className="pointer-events-none absolute inset-x-0 top-1/3 animate-fade-out text-center font-mono text-sm text-white/60">
           ← mișcă degetul sau mouse-ul →
-        </motion.p>
+        </p>
 
-        {items.map((item) => (
+        {sprites.map((sprite) => (
           <span
-            key={item.id}
-            className={cn(
-              "absolute top-0 left-0 leading-none will-change-transform",
-              item.archetype === null && "drop-shadow-[0_0_12px_rgba(244,63,94,0.9)]",
-            )}
-            style={{
-              fontSize: ITEM_SIZE - 6,
-              left: `${item.x * 100}%`,
-              transform: `translate(-50%, ${item.y}px) rotate(${item.rot}deg)`,
+            key={sprite.id}
+            ref={(node) => {
+              if (!node) return;
+              nodes.current.set(sprite.id, node);
+              return () => {
+                nodes.current.delete(sprite.id);
+              };
             }}
+            className="absolute top-0 left-0 leading-none will-change-transform"
+            style={{ fontSize: ITEM_SIZE - 6, transform: `translate3d(-200px, ${-ITEM_SIZE * 2}px, 0)` }}
           >
-            {item.emoji}
+            <span className={cn("block", sprite.hazard && "drop-shadow-[0_0_12px_rgba(244,63,94,0.9)]")}>
+              {sprite.emoji}
+            </span>
           </span>
         ))}
 
         {pops.map((pop) => (
-          <motion.span
+          <span
             key={pop.id}
             className={cn(
-              "pointer-events-none absolute -translate-x-1/2 font-display text-xl font-bold whitespace-nowrap",
+              "pointer-events-none absolute animate-pop-up font-display text-xl font-bold whitespace-nowrap",
               pop.good ? "text-lime-300" : "text-rose-400",
             )}
-            style={{ left: `${pop.x * 100}%`, top: pop.y }}
-            initial={{ opacity: 1, y: 0, scale: 0.6 }}
-            animate={{ opacity: 0, y: -70, scale: 1.3 }}
-            transition={{ duration: 0.75 }}
+            style={{ left: pop.x, top: pop.y }}
           >
             {pop.text}
-          </motion.span>
+          </span>
         ))}
 
-        <motion.div
-          className="absolute bottom-4 -translate-x-1/2"
-          style={{ left: basketLeft, rotate: basketTilt, width: BASKET_W, height: BASKET_H }}
+        <div
+          ref={basket}
+          className="absolute bottom-4 left-0 will-change-transform"
+          style={{ width: BASKET_W, height: BASKET_H, transform: `translate3d(-${BASKET_W}px, 0, 0)` }}
         >
           <div className="relative size-full">
             <div className="absolute inset-x-0 top-0 h-3 rounded-full bg-best-200 shadow-[0_0_20px_rgba(217,199,255,0.8)]" />
@@ -253,7 +286,7 @@ export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (
               BEST
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

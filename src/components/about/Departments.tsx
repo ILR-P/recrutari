@@ -51,7 +51,7 @@ export function Departments() {
       <div ref={viewport} className="mx-auto max-w-6xl overflow-hidden px-4">
         <motion.div
           ref={track}
-          className="flex cursor-grab touch-pan-y gap-5 active:cursor-grabbing"
+          className="flex cursor-grab touch-pan-y gap-5 will-change-transform active:cursor-grabbing"
           style={{ x }}
           drag="x"
           dragConstraints={viewport}
@@ -69,9 +69,10 @@ export function Departments() {
               transition={{ ...springs.soft, delay: i * 0.08 }}
               whileHover={{ y: -10 }}
             >
+              {/* Bara colorată crește din scale (GPU), nu din height (layout la fiecare cadru) */}
               <div
                 aria-hidden
-                className="absolute inset-x-0 top-0 h-1.5 transition-all duration-500 group-hover:h-full group-hover:opacity-15"
+                className="absolute inset-0 origin-top scale-y-[0.018] transition-[scale,opacity] duration-500 group-hover:scale-y-100 group-hover:opacity-15"
                 style={{ background: dept.color }}
               />
               <span

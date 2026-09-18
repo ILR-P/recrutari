@@ -5,7 +5,7 @@ import { ArrowRight, Play } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import type { Scores } from "@/data/quiz";
-import { countdownPop, fadeUp, springs, staggerContainer } from "@/lib/animations";
+import { countdownPop, fadeUp, screenExit, springs, staggerContainer } from "@/lib/animations";
 
 export type GameResult = { delta: Scores; headline: string; detail?: string };
 
@@ -56,7 +56,7 @@ export function GameShell({ title, story, emoji, countdown = true, onComplete, c
       className="w-full max-w-4xl"
       initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
-      exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)", transition: { duration: 0.3 } }}
+      exit={screenExit}
       transition={springs.soft}
     >
       <AnimatePresence mode="wait">
@@ -69,13 +69,7 @@ export function GameShell({ title, story, emoji, countdown = true, onComplete, c
             animate="show"
             exit={{ opacity: 0, y: -30 }}
           >
-            <motion.span
-              className="text-7xl sm:text-8xl"
-              animate={{ rotate: [0, -12, 12, 0], scale: [1, 1.12, 1] }}
-              transition={{ duration: 1.8, repeat: Infinity }}
-            >
-              {emoji}
-            </motion.span>
+            <span className="animate-wiggle text-7xl will-change-transform sm:text-8xl">{emoji}</span>
             <motion.p variants={fadeUp} className="mt-5 font-mono text-xs tracking-[0.3em] text-best-300 uppercase">
               🎮 Mini-joc
             </motion.p>

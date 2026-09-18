@@ -44,10 +44,11 @@ const flip3D: Variants = {
   exit: { opacity: 0, rotateX: 60, y: -40, transition: { duration: 0.3 } },
 };
 
-const zoomBlur: Variants = {
-  hidden: { opacity: 0, scale: 1.35, filter: "blur(18px)" },
-  show: { opacity: 1, scale: 1, filter: "blur(0px)", transition: { duration: 0.6, ease: easeOut } },
-  exit: { opacity: 0, scale: 0.85, filter: "blur(10px)", transition: { duration: 0.3 } },
+// Fără filter: blur (ar redesena tot blocul la fiecare cadru); zoom + opacitate arată aproape la fel.
+const zoomIn: Variants = {
+  hidden: { opacity: 0, scale: 1.35 },
+  show: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: easeOut } },
+  exit: { opacity: 0, scale: 0.85, transition: { duration: 0.3 } },
 };
 
 const slideSkew: Variants = {
@@ -67,7 +68,10 @@ const glitch: Variants = {
   exit: { opacity: 0, clipPath: "inset(0% 0% 100% 0%)", transition: { duration: 0.3 } },
 };
 
-export const questionEntrances = [flip3D, zoomBlur, slideSkew, glitch];
+export const questionEntrances = [flip3D, zoomIn, slideSkew, glitch];
+
+/** Ieșire comună pentru ecrane mari: doar opacitate și scale, care nu redesenează conținutul. */
+export const screenExit = { opacity: 0, scale: 1.06, transition: { duration: 0.3 } };
 
 export const cardFlip: Variants = {
   back: { rotateY: 180 },

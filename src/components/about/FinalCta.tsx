@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Morisca } from "@/components/ui/Morisca";
+import { ShimmerText } from "@/components/ui/ShimmerText";
 import { springs } from "@/lib/animations";
 
 export function FinalCta() {
@@ -23,7 +24,7 @@ export function FinalCta() {
         <div className="relative">
           <p className="font-mono text-xs tracking-[0.3em] text-best-100 uppercase">Durează 2 minute</p>
           <h2 className="mt-4 font-display text-4xl font-bold text-balance sm:text-6xl">
-            Acum e rândul <span className="text-gradient">tău.</span>
+            Acum e rândul <ShimmerText>tău.</ShimmerText>
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/75">
             Răspunde la câteva întrebări, joacă două mini-jocuri și primești legitimația ta de BESTan.

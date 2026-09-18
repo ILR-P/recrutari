@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Marquee } from "@/components/ui/Marquee";
 import { Morisca } from "@/components/ui/Morisca";
+import { ShimmerText } from "@/components/ui/ShimmerText";
 import { PROJECTS } from "@/data/projects";
 import { SITE } from "@/data/site";
 import { springs } from "@/lib/animations";
@@ -27,7 +28,6 @@ const FLOATERS = [
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
-  const [index, setIndex] = useState(0);
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const rotate = useTransform(scrollYProgress, [0, 1], [0, 240]);
@@ -35,21 +35,14 @@ export function Hero() {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const contentScale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
 
-  useEffect(() => {
-    const id = setInterval(() => setIndex((i) => (i + 1) % WORDS.length), 2200);
-    return () => clearInterval(id);
-  }, []);
-
-  const word = WORDS[index];
-
   return (
     <section ref={ref} className="relative flex min-h-svh flex-col overflow-hidden pt-24">
       {/* Morișca uriașă din spate: se rotește continuu și, în plus, odată cu scroll-ul */}
       <motion.div
-        className="pointer-events-none absolute top-1/2 left-1/2 size-[140vw] max-h-[950px] max-w-[950px] -translate-1/2 opacity-[0.13] sm:size-[95vw]"
+        className="pointer-events-none absolute top-1/2 left-1/2 size-[140vw] max-h-[950px] max-w-[950px] -translate-1/2 opacity-[0.13] will-change-transform sm:size-[95vw]"
         style={{ rotate }}
       >
-        <Morisca className="size-full animate-spin-slow" />
+        <Morisca className="size-full animate-spin-slow will-change-transform" />
       </motion.div>
 
       {/* Emoji-uri pe care le poți trage cu mouse-ul sau cu degetul */}
@@ -69,15 +62,16 @@ export function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ ...springs.bouncy, delay: 0.9 + i * 0.15 }}
         >
-          <span className="block animate-float drop-shadow-[0_10px_25px_rgba(162,108,255,0.5)]" style={{ animationDelay: `${i * -1.5}s` }}>
-            {f.emoji}
+          {/* Umbra stă pe stratul static din interior, ca să fie desenată o singură dată */}
+          <span className="block animate-float will-change-transform" style={{ animationDelay: `${i * -1.5}s` }}>
+            <span className="block drop-shadow-[0_10px_25px_rgba(162,108,255,0.5)]">{f.emoji}</span>
           </span>
         </motion.div>
       ))}
 
       <div className="relative z-10 flex flex-1 items-center justify-center px-4">
         <motion.div
-          className="flex max-w-5xl flex-col items-center text-center"
+          className="flex max-w-5xl flex-col items-center text-center will-change-transform"
           style={{ y: contentY, opacity: contentOpacity, scale: contentScale }}
         >
           <motion.span
@@ -103,12 +97,12 @@ export function Hero() {
               Hai în
             </motion.span>
             <motion.span
-              className="block text-gradient"
+              className="block"
               initial={{ y: 90, opacity: 0, rotate: -6 }}
               animate={{ y: 0, opacity: 1, rotate: 0 }}
               transition={{ ...springs.soft, delay: 0.25 }}
             >
-              BEST.
+              <ShimmerText>BEST.</ShimmerText>
             </motion.span>
           </h1>
 
@@ -119,21 +113,7 @@ export function Hero() {
             transition={{ delay: 0.5 }}
           >
             <span className="text-white/70">Aici</span>
-            <span className="relative inline-flex h-[1.25em] min-w-[6.3em] overflow-hidden text-left">
-              <AnimatePresence mode="popLayout" initial={false}>
-                <motion.span
-                  key={word.text}
-                  className="block"
-                  style={{ color: word.color }}
-                  initial={{ y: "100%", opacity: 0, filter: "blur(6px)" }}
-                  animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
-                  exit={{ y: "-100%", opacity: 0, filter: "blur(6px)" }}
-                  transition={springs.snappy}
-                >
-                  {word.text}.
-                </motion.span>
-              </AnimatePresence>
-            </span>
+            <RotatingWord />
           </motion.p>
 
           <motion.p
@@ -173,12 +153,42 @@ export function Hero() {
 
       <div className="relative z-10 flex flex-col items-center gap-6 pt-10 pb-8">
         <a href="#despre" aria-label="Derulează în jos" className="flex flex-col items-center gap-2 text-white/45">
-          <motion.span animate={{ y: [0, 8, 0] }} transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}>
+          <span className="animate-bob">
             <ArrowDown className="size-5" />
-          </motion.span>
+          </span>
         </a>
         <Marquee className="w-full" items={PROJECTS.map((p) => p.name)} />
       </div>
     </section>
+  );
+}
+
+/** Componentă separată: timer-ul re-randează doar cuvântul, nu tot hero-ul. */
+function RotatingWord() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setIndex((i) => (i + 1) % WORDS.length), 2200);
+    return () => clearInterval(id);
+  }, []);
+
+  const word = WORDS[index];
+
+  return (
+    <span className="relative inline-flex h-[1.25em] min-w-[6.3em] overflow-hidden text-left">
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={word.text}
+          className="block"
+          style={{ color: word.color }}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: "0%", opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={springs.snappy}
+        >
+          {word.text}.
+        </motion.span>
+      </AnimatePresence>
+    </span>
   );
 }

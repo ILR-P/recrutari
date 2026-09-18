@@ -25,12 +25,27 @@
   --color-party: #e879f9;
   --color-design: #a3e635;
 
+  /*
+   * Toate animațiile infinite folosesc doar transform și opacity. Astfel rulează
+   * pe GPU (compositor) și nu țin ocupat thread-ul principal.
+   */
   --animate-blob: blob 22s ease-in-out infinite;
   --animate-marquee: marquee 38s linear infinite;
-  --animate-gradient: gradient-x 6s ease infinite;
+  --animate-gradient-slide: gradient-slide 6s ease infinite;
+  --animate-crossfade: crossfade 6s ease-in-out infinite;
   --animate-spin-slow: spin 18s linear infinite;
+  --animate-orbit: spin 18s linear infinite;
+  --animate-orbit-reverse: spin 18s linear infinite reverse;
   --animate-float: float 6s ease-in-out infinite;
+  --animate-bob: bob 1.6s ease-in-out infinite;
+  --animate-wiggle: wiggle 1.8s ease-in-out infinite;
+  --animate-pulse-scale: pulse-scale 0.5s ease-in-out infinite;
+  --animate-pop-up: pop-up 0.75s ease-out forwards;
+  --animate-fade-out: fade-out 0.6s ease 2s forwards;
   --animate-scan: scan 2.2s linear infinite;
+  --animate-tilt-wobble: tilt-wobble 9s ease-in-out infinite;
+  --animate-glare-wobble: glare-wobble 9s ease-in-out infinite;
+  --animate-holo-wobble: holo-wobble 9s ease-in-out infinite;
 
   @keyframes blob {
     0%,
@@ -54,13 +69,24 @@
     }
   }
 
-  @keyframes gradient-x {
+  /* Gradientul butoanelor: un strat de 200% lățime care alunecă (în loc de background-position) */
+  @keyframes gradient-slide {
     0%,
     100% {
-      background-position: 0% 50%;
+      transform: translateX(0);
     }
     50% {
-      background-position: 100% 50%;
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes crossfade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
     }
   }
 
@@ -71,6 +97,108 @@
     }
     50% {
       transform: translateY(-14px);
+    }
+  }
+
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(0deg) scale(1);
+    }
+    25% {
+      transform: rotate(-12deg) scale(1.06);
+    }
+    50% {
+      transform: rotate(12deg) scale(1.12);
+    }
+    75% {
+      transform: rotate(0deg) scale(1.06);
+    }
+  }
+
+  @keyframes pulse-scale {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.12);
+    }
+  }
+
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes pop-up {
+    from {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(0.6);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -70px) scale(1.3);
+    }
+  }
+
+  /* Legitimația se clatină singură: aceleași faze ca înclinarea după cursor */
+  @keyframes tilt-wobble {
+    0%,
+    100% {
+      transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+    }
+    25% {
+      transform: perspective(1000px) rotateX(calc(var(--tilt) * 0.5)) rotateY(calc(var(--tilt) * 0.7));
+    }
+    50% {
+      transform: perspective(1000px) rotateX(calc(var(--tilt) * -0.5)) rotateY(0deg);
+    }
+    75% {
+      transform: perspective(1000px) rotateX(calc(var(--tilt) * 0.3)) rotateY(calc(var(--tilt) * -0.7));
+    }
+  }
+
+  @keyframes glare-wobble {
+    0%,
+    100% {
+      transform: translate(0%, 0%);
+    }
+    25% {
+      transform: translate(17.5%, -12.5%);
+    }
+    50% {
+      transform: translate(0%, 12.5%);
+    }
+    75% {
+      transform: translate(-17.5%, -7.5%);
+    }
+  }
+
+  @keyframes holo-wobble {
+    0%,
+    100% {
+      transform: translate(-30%, -30%);
+    }
+    25% {
+      transform: translate(-51%, -15%);
+    }
+    50% {
+      transform: translate(-30%, -45%);
+    }
+    75% {
+      transform: translate(-9%, -21%);
     }
   }
 
@@ -90,20 +218,29 @@
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
+/*
+ * „Sticlă” fără backdrop-filter: fundalul e deja moale, deci blurul nu se vedea,
+ * dar costa un recalcul pe GPU la fiecare cadru. O nuanță semi-transparentă arată la fel.
+ */
 @utility glass {
-  background-color: rgb(255 255 255 / 0.05);
+  background-color: rgb(24 12 46 / 0.42);
+  background-image: linear-gradient(rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.06));
   border: 1px solid rgb(255 255 255 / 0.1);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
 }
 
 @utility text-gradient {
-  background-image: linear-gradient(90deg, #d9c7ff, #a26cff, #e879f9, #7c22f5, #d9c7ff);
-  background-size: 300% 100%;
+  background-image: linear-gradient(90deg, #d9c7ff, #a26cff 35%, #e879f9 70%, #a26cff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: var(--animate-gradient);
+}
+
+/* A doua nuanță pentru ShimmerText: cele două straturi fac crossfade doar din opacitate */
+@utility text-gradient-alt {
+  background-image: linear-gradient(90deg, #a26cff, #e879f9 35%, #7c22f5 70%, #d9c7ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @utility grid-bg {

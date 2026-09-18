@@ -56,10 +56,10 @@ export function BestanIdCard({ archetypeId, bestanNo, issuedAt }: Props) {
                 <span className="w-20 shrink-0 text-white/70">{stat.label}</span>
                 <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
                   <motion.div
-                    className="h-full rounded-full"
+                    className="h-full w-full"
                     style={{ background: archetypeGradient(archetypeId, 90) }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${stat.value}%` }}
+                    initial={{ clipPath: "inset(0% 100% 0% 0% round 999px)" }}
+                    animate={{ clipPath: `inset(0% ${100 - stat.value}% 0% 0% round 999px)` }}
                     transition={{ duration: 1.1, ease: easeOut, delay: 1.2 + i * 0.15 }}
                   />
                 </div>
