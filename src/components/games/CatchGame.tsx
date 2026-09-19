@@ -256,7 +256,8 @@ export function CatchGame({ step, onFinish }: { step: CatchGameStep; onFinish: (
             className="absolute top-0 left-0 leading-none will-change-transform"
             style={{ fontSize: ITEM_SIZE - 6, transform: `translate3d(-200px, ${-ITEM_SIZE * 2}px, 0)` }}
           >
-            <span className={cn("block", sprite.hazard && "drop-shadow-[0_0_12px_rgba(244,63,94,0.9)]")}>
+            <span className={cn("block", sprite.hazard &&
+                  "filter-[drop-shadow(0_0_4px_rgba(244,63,94,1))_drop-shadow(0_0_14px_rgba(244,63,94,0.9))]")}>
               {sprite.emoji}
             </span>
           </span>

@@ -126,7 +126,7 @@ export const QUIZ_STEPS: QuizStep[] = [
     game: "catch",
     id: "prinde",
     title: "Prinde-le pe toate!",
-    story: "Prinde tot ce îți place și ferește-te de restanțe 📕. Ai 20 de secunde!",
+    story: "Prinde tot ce îți place și ferește-te de restanțe 💣. Ai 20 de secunde!",
     durationSec: 20,
     pointsPerCatch: 0.5,
     maxPointsPerArchetype: 3,
@@ -140,7 +140,7 @@ export const QUIZ_STEPS: QuizStep[] = [
       { emoji: "🎨", archetype: "design" },
       { emoji: "✏️", archetype: "design" },
     ],
-    hazards: [{ emoji: "📕", label: "Restanță" }],
+    hazards: [{ emoji: "💣", label: "Restanță" }],
   },
   {
     kind: "question",
