@@ -10,7 +10,7 @@ import { springs } from "@/lib/animations";
 import { cn } from "@/lib/cn";
 
 /** Proiectele folosite în joc (câte o pereche: nume ↔ descriere scurtă). */
-const PAIR_IDS = ["jobshop", "coderun", "battlelab", "courses"];
+const PAIR_IDS = ["jobshop", "coderun", "ghid", "courses"];
 
 type MemoryCard = { key: string; pairId: string; color: string; big: string; small: string; isName: boolean };
 

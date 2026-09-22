@@ -3,7 +3,7 @@
  * descrierile sunt placeholder.
  * TODO: verifică pe bestcj.ro și completează descrierile reale.
  */
-export type ProjectIcon = "briefcase" | "code" | "bot" | "plane" | "book" | "sparkles";
+export type ProjectIcon = "briefcase" | "code" | "plane" | "book" | "sparkles";
 
 export type Project = {
   id: string;
@@ -45,19 +45,6 @@ export const PROJECTS: Project[] = [
     forWho: "Pasionații de algoritmi și cod",
     url: "https://coderun.bestcj.ro",
     hint: { emoji: "⌨️", text: "Programare contra cronometru" },
-  },
-  {
-    id: "battlelab",
-    name: "BattleLab Robotica",
-    tagline: "Roboți în arenă",
-    tag: "Competiție",
-    icon: "bot",
-    color: "#f472b6",
-    description:
-      "Construiești și programezi un robot care se luptă în arenă cu roboții altor echipe. (TODO)",
-    forWho: "Cei care vor să lipească, să programeze și să câștige",
-    url: "https://battlelab.ro",
-    hint: { emoji: "🤖", text: "Roboți care se luptă" },
   },
   {
     id: "courses",

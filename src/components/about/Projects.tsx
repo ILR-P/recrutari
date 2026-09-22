@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { BookOpen, Bot, Briefcase, CodeXml, Plane, RotateCw, Sparkles } from "lucide-react";
+import { BookOpen, Briefcase, CodeXml, Plane, RotateCw, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -11,7 +11,6 @@ import { easeOut, springs } from "@/lib/animations";
 const ICONS: Record<ProjectIcon, typeof Briefcase> = {
   briefcase: Briefcase,
   code: CodeXml,
-  bot: Bot,
   plane: Plane,
   book: BookOpen,
   sparkles: Sparkles,
